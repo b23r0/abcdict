@@ -3,7 +3,7 @@ mod parser;
 fn usage () {
 	println!("abcdict - Password Dictionary Generator");
 	println!("https://github.com/b23r0/abcdict");
-	println!("Usage: abcdict \"pass[n1-100]word[sabc|456]\"");
+	println!("Usage: abcdict \"pass[n1-100]word[sabc-456]\"");
 }
 
 fn main() {
@@ -15,6 +15,4 @@ fn main() {
     let d = std::env::args().nth(1).unwrap().as_str().to_string();
 
     parser::exec(d).unwrap();
-
-    println!("Hello, world!");
 }

@@ -1,6 +1,7 @@
 use std::fmt::Debug;
 use std::fmt;
 use std::error;
+use std::fmt::format;
 
 pub enum SyntaxError {
 	NotFindStatRightUntilEnd = 1,
@@ -205,15 +206,18 @@ fn parser(s : Vec<TokenSt>) -> Result<Vec<StatementSt> , SyntaxError> {
 	Ok(ret)
 }
 
-pub fn exec_vm(v : &mut Vec<StatementSt>) {
+pub fn exec_vm(v : &mut Vec<StatementSt> , curstate : &mut String) {
 
 	match v[0].t {
 		Statement::Chars => {
-			print!("{}" , v[0].v);
+			
 			if v.len() == 1 {
-				print!("\n");
+				println!("{}{}" , curstate ,v[0].v);
 			} else {
-				exec_vm(&mut v[1..].to_vec());
+				let tmp = curstate.clone();
+				*curstate += &v[0].v;
+				exec_vm(&mut v[1..].to_vec(), curstate);
+				*curstate = tmp;
 			}
 		}
 		Statement::Numbers => {
@@ -221,12 +225,12 @@ pub fn exec_vm(v : &mut Vec<StatementSt>) {
 			let mut op1 = ops[0].parse::<i64>().unwrap();
 			let op2 = ops[1].parse::<i64>().unwrap();
 
-			while op1 < op2 {
+			while op1 <= op2 {
 				let mut tmp = [StatementSt{t : Statement::Chars , v : op1.to_string()}].to_vec();
 				if v.len() != 1 {
 					tmp.append(&mut v[1..].to_vec());
 				}
-				exec_vm(&mut tmp);
+				exec_vm(&mut tmp , curstate);
 				op1 += 1;
 			}
 		},
@@ -240,8 +244,8 @@ pub fn exec_vm(v : &mut Vec<StatementSt>) {
 				if v.len() != 1 {
 					tmp.append(&mut v[1..].to_vec());
 				}
-				exec_vm(&mut tmp);
-				i += 0;
+				exec_vm(&mut tmp , curstate);
+				i += 1;
 			}
 		}
 	}
@@ -264,8 +268,8 @@ pub fn exec(input : String) -> Result<Vec<StatementSt> , SyntaxError>{
 			return Err(e)
 		},
 	};
-
-	exec_vm(&mut ret);
+	let mut curstate = String::new();
+	exec_vm(&mut ret , &mut curstate);
 
 	Ok(ret)
 }
