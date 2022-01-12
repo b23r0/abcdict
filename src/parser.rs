@@ -3,13 +3,15 @@ use std::fmt;
 use std::error;
 
 pub enum SyntaxError {
-	NotFindQuotaUntilEnd
+	NotFindStatRightUntilEnd = 1,
+	UnknowError = 2
 }
 
 impl Debug for SyntaxError {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
 		match self {
-			SyntaxError::NotFindQuotaUntilEnd => write!(f, "NotFindQuotaUntilEnd"),
+			SyntaxError::NotFindStatRightUntilEnd => write!(f, "NotFindStatRightUntilEnd"),
+    		SyntaxError::UnknowError=> write!(f, "UnknowError")
 		}
 	}
 }
@@ -23,7 +25,8 @@ impl PartialEq for SyntaxError {
 impl fmt::Display for SyntaxError {
 	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
 		match self {
-			SyntaxError::NotFindQuotaUntilEnd => write!(f, "NotFindQuotaUntilEnd"),
+			SyntaxError::NotFindStatRightUntilEnd => write!(f, "NotFindStatRightUntilEnd"),
+			SyntaxError::UnknowError=> write!(f, "UnknowError")
 		}
 	}
 }
@@ -37,16 +40,16 @@ impl error::Error for SyntaxError {
 #[derive(PartialEq)]
 enum Token{
 	Char = 1,
-	Quota = 2 ,
-	Space = 3
+	StatLeft = 2,
+	StatRight = 3
 }
 
 impl Clone for Token {
 	fn clone(&self) -> Self {
 		match self {
 			Self::Char => Self::Char,
-			Self::Quota => Self::Quota,
-			Self::Space => Self::Space,
+			Self::StatLeft => Self::StatLeft,
+			Self::StatRight => Self::StatRight,
 		}
 	}
 }
@@ -62,20 +65,67 @@ impl Clone for TokenSt {
 	}
 }
 
+#[derive(PartialEq)]
+enum Statement{
+	Chars = 1,
+	Numbers = 2,
+	Strings = 3
+}
+
+impl Clone for Statement {
+	fn clone(&self) -> Self {
+		match self {
+			Self::Chars => Self::Chars,
+			Self::Numbers => Self::Numbers,
+			Self::Strings => Self::Strings
+		}
+	}
+}
+
+pub struct StatementSt{
+	t : Statement,
+	v : String
+}
+
+impl Clone for StatementSt {
+	fn clone(&self) -> Self {
+		Self { t: self.t.clone(), v: self.v.clone() }
+	}
+}
+
+fn is_escape( s : &Vec<u8> , pos : usize) -> bool{
+	if pos == 0 {
+		return false;
+	}
+	
+	s[pos-1] as char == '\\'
+}
+
+fn backspace( s : &mut Vec<TokenSt>){
+	s.pop();
+}
+
 fn tokenizer( s : Vec<u8> ) -> Result<Vec<TokenSt> ,SyntaxError> {
 	let mut ret : Vec<TokenSt> = vec![];
 
 	let mut i = 0;
 	while i < s.len() {
 		match s[i] as char {
-			'\"' => {
-				ret.push(TokenSt{t : Token::Quota ,v: s[i]});
+			'[' => {
+				if is_escape(&s , i) {
+					backspace(&mut ret);
+					ret.push(TokenSt{t : Token::Char ,v: s[i]});
+				} else {
+					ret.push(TokenSt{t : Token::StatLeft ,v: s[i]});
+				}
 			},
-			' ' => {
-				ret.push(TokenSt{t : Token::Space ,v: s[i]});
-			},
-			'\t' => {
-				ret.push(TokenSt{t : Token::Space ,v: s[i]});
+			']' => {
+				if is_escape(&s , i) {
+					backspace(&mut ret);
+					ret.push(TokenSt{t : Token::Char ,v: s[i]});
+				} else {
+					ret.push(TokenSt{t : Token::StatRight ,v: s[i]});
+				}
 			},
 			_ => {
 				ret.push(TokenSt{t : Token::Char ,v: s[i]});
@@ -107,35 +157,47 @@ fn eat(s : Vec<TokenSt> , end : Vec<Token>) -> (String , u8) {
 	( String::from_utf8(ret).unwrap() , 0 )
 }
 
-fn parser(s : Vec<TokenSt>) -> Result<Vec<String> , SyntaxError> {
-	let mut ret : Vec<String> = vec![];
+fn parser(s : Vec<TokenSt>) -> Result<Vec<StatementSt> , SyntaxError> {
+	let mut ret : Vec<StatementSt> = vec![];
 	
 	let mut i = 0;
 	while i < s.len() {
 		match s[i].t {
 			Token::Char => {
-				let (a, _) = eat(s[i..].to_vec(), [Token::Space].to_vec());
+				let (a, _) = eat(s[i..].to_vec(), [Token::StatLeft , Token::StatRight].to_vec());
 				i += a.len();
-				ret.push(a);
+				ret.push(StatementSt{t : Statement::Chars , v : a});
 			}
-			Token::Quota => {
+			Token::StatLeft => {
 				if i != s.len() - 1 {
-					let (a, e) = eat(s[i + 1..].to_vec(), [Token::Quota].to_vec());
+					let (a, e) = eat(s[i + 1..].to_vec(), [Token::StatRight].to_vec());
 
 					if e != 0 {
-						return Err(SyntaxError::NotFindQuotaUntilEnd);
+						return Err(SyntaxError::NotFindStatRightUntilEnd);
 					}
 	
+					let mut statype : Statement = Statement::Chars;
+
 					i += a.len() + 2;
-					ret.push(a);
+					match a.as_bytes()[0] as char{
+						'n' => {
+							statype = Statement::Numbers;
+						},
+						's' => {
+							statype = Statement::Strings;
+						},
+						_ => {
+							return Err(SyntaxError::UnknowError); 
+						}
+					}
+					ret.push(StatementSt{t : statype, v : a});
 				} else {
-					return Err(SyntaxError::NotFindQuotaUntilEnd);
+					return Err(SyntaxError::NotFindStatRightUntilEnd);
 				}
 
 			},
-			Token::Space => {
-				let (a, _) = eat(s[i..].to_vec(), [Token::Char , Token::Quota].to_vec());
-				i += a.len();
+			_ => {
+				return Err(SyntaxError::UnknowError);
 			},
 		}
 	} 
@@ -143,7 +205,7 @@ fn parser(s : Vec<TokenSt>) -> Result<Vec<String> , SyntaxError> {
 	Ok(ret)
 }
 
-pub fn exec(input : String) -> Result<Vec<String> , SyntaxError>{
+pub fn exec(input : String) -> Result<Vec<StatementSt> , SyntaxError>{
 
 	let s = input.as_bytes();
 
