@@ -175,8 +175,8 @@ fn parser(s : Vec<TokenSt>) -> Result<Vec<StatementSt> , SyntaxError> {
 					if e != 0 {
 						return Err(SyntaxError::NotFindStatRightUntilEnd);
 					}
-	
-					let mut statype : Statement = Statement::Chars;
+
+					let mut statype = Statement::Chars;
 
 					i += a.len() + 2;
 					match a.as_bytes()[0] as char{
@@ -190,7 +190,7 @@ fn parser(s : Vec<TokenSt>) -> Result<Vec<StatementSt> , SyntaxError> {
 							return Err(SyntaxError::UnknowError); 
 						}
 					}
-					ret.push(StatementSt{t : statype, v : a});
+					ret.push(StatementSt{t : statype, v : String::from_utf8(a.as_bytes().to_vec()[1..].to_vec()).unwrap()});
 				} else {
 					return Err(SyntaxError::NotFindStatRightUntilEnd);
 				}
@@ -205,6 +205,48 @@ fn parser(s : Vec<TokenSt>) -> Result<Vec<StatementSt> , SyntaxError> {
 	Ok(ret)
 }
 
+pub fn exec_vm(v : &mut Vec<StatementSt>) {
+
+	match v[0].t {
+		Statement::Chars => {
+			print!("{}" , v[0].v);
+			if v.len() == 1 {
+				print!("\n");
+			} else {
+				exec_vm(&mut v[1..].to_vec());
+			}
+		}
+		Statement::Numbers => {
+			let ops :Vec<&str> = v[0].v.split("-").collect();
+			let mut op1 = ops[0].parse::<i64>().unwrap();
+			let op2 = ops[1].parse::<i64>().unwrap();
+
+			while op1 < op2 {
+				let mut tmp = [StatementSt{t : Statement::Chars , v : op1.to_string()}].to_vec();
+				if v.len() != 1 {
+					tmp.append(&mut v[1..].to_vec());
+				}
+				exec_vm(&mut tmp);
+				op1 += 1;
+			}
+		},
+		Statement::Strings => {
+			let ops :Vec<&str> = v[0].v.split("-").collect();
+
+			let mut i = 0 ;
+
+			while i < ops.len() {
+				let mut tmp = [StatementSt{t : Statement::Chars , v : ops[i].to_string()}].to_vec();
+				if v.len() != 1 {
+					tmp.append(&mut v[1..].to_vec());
+				}
+				exec_vm(&mut tmp);
+				i += 0;
+			}
+		}
+	}
+}
+
 pub fn exec(input : String) -> Result<Vec<StatementSt> , SyntaxError>{
 
 	let s = input.as_bytes();
@@ -216,12 +258,14 @@ pub fn exec(input : String) -> Result<Vec<StatementSt> , SyntaxError>{
 		}
 	};
 
-	let ret = match parser(tokens) {
+	let mut ret = match parser(tokens) {
 		Ok(p) => p,
 		Err(e) => {
 			return Err(e)
 		},
 	};
+
+	exec_vm(&mut ret);
 
 	Ok(ret)
 }
