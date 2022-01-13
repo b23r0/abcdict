@@ -77,7 +77,7 @@ dannylikenancy
 ```
 
 ```
-$> ./abcdict [sadmin-root-manager-master][c\!-/]
+$> ./abcdict [sadmin-root-manager-master][c*-/]
 
 admin*
 admin+
