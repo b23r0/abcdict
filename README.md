@@ -43,3 +43,65 @@ jack2013c#
 | s         | [sjack-tom]     | collection of strings       |
 | n          | [n2012-2021]     | range of numbers   |
 | x         | [x10]     | factorial previous unit       |
+
+# Examples
+
+```
+$> ./abcdict 2021[p0-2-1-12]
+
+202101
+202102
+202103
+202104
+202105
+202106
+202107
+202108
+202109
+202110
+202111
+202112
+
+```
+
+```
+$> ./abcdict [sjack-tom-danny]like[skathy-nancy]
+
+jacklikekathy
+jacklikenancy
+tomlikekathy
+tomlikenancy
+dannylikekathy
+dannylikenancy
+
+```
+
+```
+$> ./abcdict [sadmin-root-manager-master][c\!-/]
+
+admin*
+admin+
+admin,
+admin-
+admin.
+admin/
+root*
+root+
+root,
+root-
+root.
+root/
+manager*
+manager+
+manager,
+manager-
+manager.
+manager/
+master*
+master+
+master,
+master-
+master.
+master/
+
+```
