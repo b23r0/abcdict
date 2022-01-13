@@ -70,7 +70,8 @@ impl Clone for TokenSt {
 enum Statement{
 	Chars = 1,
 	Numbers = 2,
-	Strings = 3
+	Strings = 3,
+	Char = 4
 }
 
 impl Clone for Statement {
@@ -78,7 +79,8 @@ impl Clone for Statement {
 		match self {
 			Self::Chars => Self::Chars,
 			Self::Numbers => Self::Numbers,
-			Self::Strings => Self::Strings
+			Self::Strings => Self::Strings,
+			Self::Char => Self::Char
 		}
 	}
 }
@@ -126,6 +128,12 @@ fn tokenizer( s : Vec<u8> ) -> Result<Vec<TokenSt> ,SyntaxError> {
 					ret.push(TokenSt{t : Token::Char ,v: s[i]});
 				} else {
 					ret.push(TokenSt{t : Token::StatRight ,v: s[i]});
+				}
+			},
+			' ' => {
+				if is_escape(&s , i) {
+					backspace(&mut ret);
+					ret.push(TokenSt{t : Token::Char ,v: s[i]});
 				}
 			},
 			_ => {
@@ -187,6 +195,9 @@ fn parser(s : Vec<TokenSt>) -> Result<Vec<StatementSt> , SyntaxError> {
 						's' => {
 							statype = Statement::Strings;
 						},
+						'c' => {
+							statype = Statement::Char;
+						},
 						_ => {
 							return Err(SyntaxError::UnknowError); 
 						}
@@ -206,7 +217,7 @@ fn parser(s : Vec<TokenSt>) -> Result<Vec<StatementSt> , SyntaxError> {
 	Ok(ret)
 }
 
-pub fn exec_vm(v : &mut Vec<StatementSt> , curstate : &mut String) {
+pub fn exec_stat(v : &mut Vec<StatementSt> , curstate : &mut String) {
 
 	match v[0].t {
 		Statement::Chars => {
@@ -216,7 +227,7 @@ pub fn exec_vm(v : &mut Vec<StatementSt> , curstate : &mut String) {
 			} else {
 				let tmp = curstate.clone();
 				*curstate += &v[0].v;
-				exec_vm(&mut v[1..].to_vec(), curstate);
+				exec_stat(&mut v[1..].to_vec(), curstate);
 				*curstate = tmp;
 			}
 		}
@@ -230,7 +241,7 @@ pub fn exec_vm(v : &mut Vec<StatementSt> , curstate : &mut String) {
 				if v.len() != 1 {
 					tmp.append(&mut v[1..].to_vec());
 				}
-				exec_vm(&mut tmp , curstate);
+				exec_stat(&mut tmp , curstate);
 				op1 += 1;
 			}
 		},
@@ -244,8 +255,22 @@ pub fn exec_vm(v : &mut Vec<StatementSt> , curstate : &mut String) {
 				if v.len() != 1 {
 					tmp.append(&mut v[1..].to_vec());
 				}
-				exec_vm(&mut tmp , curstate);
+				exec_stat(&mut tmp , curstate);
 				i += 1;
+			}
+		},
+		Statement::Char => {
+			let ops :Vec<&str> = v[0].v.split("-").collect();
+			let mut op1 = ops[0].parse::<char>().unwrap();
+			let op2 = ops[1].parse::<char>().unwrap();
+
+			while op1 <= op2 {
+				let mut tmp = [StatementSt{t : Statement::Chars , v : op1.to_string()}].to_vec();
+				if v.len() != 1 {
+					tmp.append(&mut v[1..].to_vec());
+				}
+				exec_stat(&mut tmp , curstate);
+				op1 = (op1 as u8 + 1) as char;
 			}
 		}
 	}
@@ -269,7 +294,7 @@ pub fn exec(input : String) -> Result<Vec<StatementSt> , SyntaxError>{
 		},
 	};
 	let mut curstate = String::new();
-	exec_vm(&mut ret , &mut curstate);
+	exec_stat(&mut ret , &mut curstate);
 
 	Ok(ret)
 }

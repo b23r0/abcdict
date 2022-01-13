@@ -3,7 +3,7 @@ mod parser;
 fn usage () {
 	println!("abcdict - Password Dictionary Generator");
 	println!("https://github.com/b23r0/abcdict");
-	println!("Usage: abcdict \"pass[n1-100]word[sabc-456]\"");
+	println!("Usage: abcdict \"pass[n1-100]word[sabc-456][ca-Z]\"");
 }
 
 fn main() {
