@@ -1,5 +1,5 @@
 # abcdict
-A better customize dictionary generator implementation by Rust.
+A better customization dictionary generator implementation by Rust.
 
 # Features
 
@@ -38,8 +38,8 @@ jack2013c#
 
 | Control Character        | Example | Description        |
 |----------------|----------|-------------|
-| n          | [n2012-2021]     | range of numbers   |
+| p         | [p0-2-1-12]     | range of numbers with padded       |
 | c | [cA-z]     | range of ASCII characters   |
 | s         | [sjack-tom]     | collection of strings       |
-| p         | [p0-2-1-12]     | range of numbers with padded       |
+| n          | [n2012-2021]     | range of numbers   |
 | x         | [x10]     | factorial previous unit       |

@@ -71,7 +71,8 @@ enum Statement{
 	Chars = 1,
 	Numbers = 2,
 	Strings = 3,
-	Char = 4
+	Char = 4,
+	PaddedNumber = 5
 }
 
 impl Clone for Statement {
@@ -80,7 +81,8 @@ impl Clone for Statement {
 			Self::Chars => Self::Chars,
 			Self::Numbers => Self::Numbers,
 			Self::Strings => Self::Strings,
-			Self::Char => Self::Char
+			Self::Char => Self::Char,
+			Self::PaddedNumber => Self::PaddedNumber,
 		}
 	}
 }
@@ -198,6 +200,9 @@ fn parser(s : Vec<TokenSt>) -> Result<Vec<StatementSt> , SyntaxError> {
 						'c' => {
 							statype = Statement::Char;
 						},
+						'p' => {
+							statype = Statement::PaddedNumber;
+						},
 						_ => {
 							return Err(SyntaxError::UnknowError); 
 						}
@@ -271,6 +276,34 @@ pub fn exec_stat(v : &mut Vec<StatementSt> , curstate : &mut String) {
 				}
 				exec_stat(&mut tmp , curstate);
 				op1 = (op1 as u8 + 1) as char;
+			}
+		},
+		Statement::PaddedNumber => {
+			let ops :Vec<&str> = v[0].v.split("-").collect();
+			let op1 = ops[0].parse::<char>().unwrap();
+			let op2 = ops[1].parse::<usize>().unwrap();
+			let mut op3 = ops[2].parse::<i64>().unwrap();
+			let op4 = ops[3].parse::<i64>().unwrap();
+
+			while op3 <= op4 {
+
+				let mut full = String::new();
+
+				if op3.to_string().len() < op2{
+					let mut i = 0 ;
+					while i < op2 - op1.to_string().len(){
+						full += &op1.to_string();
+						i += 1;
+					}
+				}
+				full += &op3.to_string();
+
+				let mut tmp = [StatementSt{t : Statement::Chars , v : full}].to_vec();
+				if v.len() != 1 {
+					tmp.append(&mut v[1..].to_vec());
+				}
+				exec_stat(&mut tmp , curstate);
+				op3 += 1;
 			}
 		}
 	}
