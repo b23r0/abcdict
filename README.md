@@ -1,4 +1,4 @@
-# abcdict
+# abcdict [![Build Status](https://img.shields.io/github/workflow/status/b23r0/abcdict/Rust)](https://github.com/b23r0/abcdict/actions/workflows/rust.yml) [![ChatOnDiscord](https://img.shields.io/badge/chat-on%20discord-blue)](https://discord.gg/ZKtYMvDFN4)
 A better customization dictionary generator implementation by Rust.
 
 # Features
