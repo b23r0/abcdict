@@ -36,13 +36,13 @@ jack2013c#
 
 ## Control Block
 
-| Control Character        | Example | Description        |
-|----------------|----------|-------------|
-| p         | [p0-2-1-12]     | range of numbers with padded       |
-| c | [cA-z]     | range of ASCII characters   |
-| s         | [sjack-tom]     | collection of strings       |
-| n          | [n2012-2021]     | range of numbers   |
-| x         | [x10]     | factorial previous unit       |
+| Control Character        | Example | Description        | Arguments |
+|----------------|----------|-------------|-------------|
+| p         | [p0-2-1-12]     | range of numbers with padded       |  {pad}-{length}-{begin}-{end}  |
+| c | [cA-z]     | range of ASCII characters   | {begin}-{end} |
+| s         | [sjack-tom]     | collection of strings       | {string1}-{string2}-...-{stringN} |
+| n          | [n2012-2021]     | range of numbers   | {begin}-{end} |
+| x         | [x10]     | factorial after unit       | {factorial layers} |
 
 # Examples
 
