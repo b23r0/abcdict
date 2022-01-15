@@ -1,17 +1,18 @@
 use std::fmt::Debug;
 use std::fmt;
 use std::error;
+use std::process::exit;
 
 pub enum SyntaxError {
 	NotFindStatRightUntilEnd = 1,
-	UnknowError = 2
+	UnknowControlCharacterError = 2
 }
 
 impl Debug for SyntaxError {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
 		match self {
 			SyntaxError::NotFindStatRightUntilEnd => write!(f, "NotFindStatRightUntilEnd"),
-    		SyntaxError::UnknowError=> write!(f, "UnknowError")
+    		SyntaxError::UnknowControlCharacterError=> write!(f, "UnknowControlCharacterError")
 		}
 	}
 }
@@ -26,7 +27,7 @@ impl fmt::Display for SyntaxError {
 	fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
 		match self {
 			SyntaxError::NotFindStatRightUntilEnd => write!(f, "NotFindStatRightUntilEnd"),
-			SyntaxError::UnknowError=> write!(f, "UnknowError")
+			SyntaxError::UnknowControlCharacterError=> write!(f, "UnknowControlCharacterError")
 		}
 	}
 }
@@ -206,7 +207,7 @@ fn parser(s : Vec<TokenSt>) -> Result<Vec<StatementSt> , SyntaxError> {
 							Statement::Factorial
 						},
 						_ => {
-							return Err(SyntaxError::UnknowError); 
+							return Err(SyntaxError::UnknowControlCharacterError); 
 						}
 					};
 					ret.push(StatementSt{t : statype, v : String::from_utf8(a.as_bytes().to_vec()[1..].to_vec()).unwrap()});
@@ -216,7 +217,7 @@ fn parser(s : Vec<TokenSt>) -> Result<Vec<StatementSt> , SyntaxError> {
 
 			},
 			_ => {
-				return Err(SyntaxError::UnknowError);
+				return Err(SyntaxError::UnknowControlCharacterError);
 			},
 		}
 	} 
@@ -247,8 +248,30 @@ pub fn exec_stat(v : &mut Vec<StatementSt> , curstate : &mut String , before : O
 		}
 		Statement::Numbers => {
 			let ops :Vec<&str> = v[0].v.split('-').collect();
-			let mut op1 = ops[0].parse::<i64>().unwrap();
-			let op2 = ops[1].parse::<i64>().unwrap();
+
+			if ops.len() != 2{
+				println!("parse argument '{}' faild . eg : [n1-100]" , v[0].v);
+				exit(0);
+			}
+
+			let mut op1 = match ops[0].parse::<i64>(){
+				Ok(p) => {
+					p
+				},
+				Err(_) => {
+					println!("parse argument '{}' faild . eg : [n1-100]" , v[0].v);
+					exit(0);
+				},
+			};
+			let op2 = match ops[1].parse::<i64>(){
+				Ok(p) => {
+					p
+				},
+				Err(_) => {
+					println!("parse argument '{}' faild . eg : [n1-100]" , v[0].v);
+					exit(0);
+				},
+			};
 
 			while op1 <= op2 {
 				let mut tmp = [StatementSt{t : Statement::Chars , v : op1.to_string()}].to_vec();
@@ -275,8 +298,30 @@ pub fn exec_stat(v : &mut Vec<StatementSt> , curstate : &mut String , before : O
 		},
 		Statement::Char => {
 			let ops :Vec<&str> = v[0].v.split('-').collect();
-			let mut op1 = ops[0].parse::<char>().unwrap();
-			let op2 = ops[1].parse::<char>().unwrap();
+
+			if ops.len() != 2{
+				println!("parse argument '{}' faild . eg : [cA-z]" , v[0].v);
+				exit(0);
+			}
+
+			let mut op1 = match ops[0].parse::<char>(){
+				Ok(p) => {
+					p
+				},
+				Err(_) => {
+					println!("parse argument '{}' faild . eg : [cA-z]" , v[0].v);
+					exit(0);
+				},
+			};
+			let op2 = match ops[1].parse::<char>(){
+				Ok(p) => {
+					p
+				},
+				Err(_) => {
+					println!("parse argument '{}' faild . eg : [cA-z]" , v[0].v);
+					exit(0);
+				},
+			};
 
 			while op1 <= op2 {
 				let mut tmp = [StatementSt{t : Statement::Chars , v : op1.to_string()}].to_vec();
@@ -289,10 +334,48 @@ pub fn exec_stat(v : &mut Vec<StatementSt> , curstate : &mut String , before : O
 		},
 		Statement::PaddedNumber => {
 			let ops :Vec<&str> = v[0].v.split('-').collect();
-			let op1 = ops[0].parse::<char>().unwrap();
-			let op2 = ops[1].parse::<usize>().unwrap();
-			let mut op3 = ops[2].parse::<i64>().unwrap();
-			let op4 = ops[3].parse::<i64>().unwrap();
+
+			if ops.len() != 4{
+				println!("parse argument '{}' faild . eg : [p0-2-1-12]" , v[0].v);
+				exit(0);
+			}
+
+			let op1 = match ops[0].parse::<char>(){
+				Ok(p) => {
+					p
+				},
+				Err(_) => {
+					println!("parse argument '{}' faild . eg : [p0-2-1-12]" , v[0].v);
+					exit(0);
+				},
+			};
+			let op2 = match ops[1].parse::<usize>(){
+				Ok(p) => {
+					p
+				},
+				Err(_) => {
+					println!("parse argument '{}' faild . eg : [p0-2-1-12]" , v[0].v);
+					exit(0);
+				},
+			};
+			let mut op3 = match ops[2].parse::<i64>(){
+				Ok(p) => {
+					p
+				},
+				Err(_) => {
+					println!("parse argument '{}' faild . eg : [p0-2-1-12]" , v[0].v);
+					exit(0);
+				},
+			};
+			let op4 = match ops[3].parse::<i64>(){
+				Ok(p) => {
+					p
+				},
+				Err(_) => {
+					println!("parse argument '{}' faild . eg : [p0-2-1-12]" , v[0].v);
+					exit(0);
+				},
+			};
 
 			while op3 <= op4 {
 
@@ -316,7 +399,16 @@ pub fn exec_stat(v : &mut Vec<StatementSt> , curstate : &mut String , before : O
 			}
 		},
 		Statement::Factorial => {
-			let op = v[0].v.parse::<u32>().unwrap();
+			let op = match v[0].v.parse::<u32>(){
+				Ok(p) => {
+					p
+				},
+				Err(_) => {
+					println!("parse argument '{}' faild . eg : [x10]" , v[0].v);
+					exit(0);
+				},
+			};
+
 			let mut i : u32 = 0 ;
 			while i < op {
 				match before {
@@ -358,7 +450,14 @@ pub fn exec(input : String) -> Result<Vec<StatementSt> , SyntaxError>{
 	let mut ret = match parser(tokens) {
 		Ok(p) => p,
 		Err(e) => {
-			return Err(e)
+			if e == SyntaxError::NotFindStatRightUntilEnd{
+				println!("not found ']'.");
+			} else if e == SyntaxError::UnknowControlCharacterError {
+				println!("only support 'n,p,s,x,c' control characters.");
+			} else {
+				println!("syntax error.");
+			}
+			exit(0);
 		},
 	};
 	let mut curstate = String::new();
