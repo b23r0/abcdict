@@ -2,7 +2,12 @@
 name = "abcdict"
 version = "0.1.0"
 edition = "2021"
-
+authors = ["b23r0 <b23r0@foxmail.com>"]
+description = "A better customization password dictionary generator implementation by Rust."
+repository = "https://github.com/b23r0/abcdict"
+readme = "README.md"
+license = "MIT"
+keywords = ["password", "pentest" , "security" , "generator"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
