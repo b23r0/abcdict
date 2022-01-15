@@ -42,7 +42,7 @@ jack2013c#
 | c | [cA-z]     | range of ASCII characters   | {begin}-{end} |
 | s         | [sjack-tom]     | collection of strings       | {string1}-{string2}-...-{stringN} |
 | n          | [n2012-2021]     | range of numbers   | {begin}-{end} |
-| x         | [x10]     | factorial after unit       | {factorial layers} |
+| x         | [x10]     | factorial previous unit       | {factorial layers} |
 
 # Examples
 
@@ -103,5 +103,21 @@ master,
 master-
 master.
 master/
+
+```
+
+```
+$>./abcdict ab[sc][x10]de
+
+abcde
+abccde
+abcccde
+abccccde
+abcccccde
+abccccccde
+abcccccccde
+abccccccccde
+abcccccccccde
+abccccccccccde
 
 ```
