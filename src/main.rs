@@ -3,7 +3,7 @@ mod parser;
 fn usage () {
 	println!("abcdict - A better customization dictionary generator");
 	println!("https://github.com/b23r0/abcdict");
-	println!("Usage: ./abcdict pass[n1-100]word[sabc-456][ca-Z]");
+	println!("Usage: ./abcdict pass[n1-100]word[sabc-456][cA-z]");
 }
 
 fn main() {

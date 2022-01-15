@@ -99,7 +99,7 @@ impl Clone for StatementSt {
 	}
 }
 
-fn is_escape( s : &Vec<u8> , pos : usize) -> bool{
+fn is_escape( s : &[u8] , pos : usize) -> bool{
 	if pos == 0 {
 		return false;
 	}
@@ -188,29 +188,27 @@ fn parser(s : Vec<TokenSt>) -> Result<Vec<StatementSt> , SyntaxError> {
 						return Err(SyntaxError::NotFindStatRightUntilEnd);
 					}
 
-					let mut statype = Statement::Chars;
-
 					i += a.len() + 2;
-					match a.as_bytes()[0] as char{
+					let statype = match a.as_bytes()[0] as char{
 						'n' => {
-							statype = Statement::Numbers;
+							Statement::Numbers
 						},
 						's' => {
-							statype = Statement::Strings;
+							Statement::Strings
 						},
 						'c' => {
-							statype = Statement::Char;
+							Statement::Char
 						},
 						'p' => {
-							statype = Statement::PaddedNumber;
+							Statement::PaddedNumber
 						},
 						'x' => {
-							statype = Statement::Factorial;
+							Statement::Factorial
 						},
 						_ => {
 							return Err(SyntaxError::UnknowError); 
 						}
-					}
+					};
 					ret.push(StatementSt{t : statype, v : String::from_utf8(a.as_bytes().to_vec()[1..].to_vec()).unwrap()});
 				} else {
 					return Err(SyntaxError::NotFindStatRightUntilEnd);
@@ -228,8 +226,8 @@ fn parser(s : Vec<TokenSt>) -> Result<Vec<StatementSt> , SyntaxError> {
 
 pub fn exec_stat(v : &mut Vec<StatementSt> , curstate : &mut String , before : Option<&StatementSt>) {
 
-	if v.len() == 0{
-		if curstate.len() != 0{
+	if v.is_empty(){
+		if !curstate.is_empty(){
 			println!("{}" , curstate);
 		}
 		return;
@@ -248,7 +246,7 @@ pub fn exec_stat(v : &mut Vec<StatementSt> , curstate : &mut String , before : O
 			}
 		}
 		Statement::Numbers => {
-			let ops :Vec<&str> = v[0].v.split("-").collect();
+			let ops :Vec<&str> = v[0].v.split('-').collect();
 			let mut op1 = ops[0].parse::<i64>().unwrap();
 			let op2 = ops[1].parse::<i64>().unwrap();
 
@@ -262,7 +260,7 @@ pub fn exec_stat(v : &mut Vec<StatementSt> , curstate : &mut String , before : O
 			}
 		},
 		Statement::Strings => {
-			let ops :Vec<&str> = v[0].v.split("-").collect();
+			let ops :Vec<&str> = v[0].v.split('-').collect();
 
 			let mut i = 0 ;
 
@@ -276,7 +274,7 @@ pub fn exec_stat(v : &mut Vec<StatementSt> , curstate : &mut String , before : O
 			}
 		},
 		Statement::Char => {
-			let ops :Vec<&str> = v[0].v.split("-").collect();
+			let ops :Vec<&str> = v[0].v.split('-').collect();
 			let mut op1 = ops[0].parse::<char>().unwrap();
 			let op2 = ops[1].parse::<char>().unwrap();
 
@@ -290,7 +288,7 @@ pub fn exec_stat(v : &mut Vec<StatementSt> , curstate : &mut String , before : O
 			}
 		},
 		Statement::PaddedNumber => {
-			let ops :Vec<&str> = v[0].v.split("-").collect();
+			let ops :Vec<&str> = v[0].v.split('-').collect();
 			let op1 = ops[0].parse::<char>().unwrap();
 			let op2 = ops[1].parse::<usize>().unwrap();
 			let mut op3 = ops[2].parse::<i64>().unwrap();
