@@ -1,5 +1,5 @@
 # abcdict [![Build Status](https://img.shields.io/github/workflow/status/b23r0/abcdict/Rust)](https://github.com/b23r0/abcdict/actions/workflows/rust.yml) [![ChatOnDiscord](https://img.shields.io/badge/chat-on%20discord-blue)](https://discord.gg/ZKtYMvDFN4) [![Crate](https://img.shields.io/crates/v/abcdict)](https://crates.io/crates/abcdict)
-A better customization password dictionary generator implementation by Rust.
+A better customization password dictionary generator.
 
 # Features
 
